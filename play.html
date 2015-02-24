@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,400' rel='stylesheet' type='text/css'>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js'></script>
+    <script src='https://cdn.socket.io/socket.io-1.3.3.js'></script>
+    <script src='three.min.js'></script>
+    <script src='OrbitControls.js'></script>
+    <link rel='stylesheet' type='text/css' href='style.css'>
+    <title>3D Tic Tac Toe</title>
+    <script>
+        var socket = io();
+        socket.on('cubes', function(cubes) {
+            for (var x in cubes) {
+                if (!cubes[x]) {
+                    cubes[x] = [];
+                }
+                for (var y in cubes[x]) {
+                    if (!cubes[y]) {
+                        cubes[y] = [];
+                    }
+                    for (var z in cubes[x][y]) {
+                        if (cubes[x][y][z] === 'blue' || cubes[x][y][z] === 'red') {
+                            addCube({
+                                x: x,
+                                y: y,
+                                z: z
+                            }, cubes[x][y][z]);
+                        }
+                    }
+                }
+            }
+        });
+        socket.on('display', function(colored_text) {
+            display(colored_text.text, colored_text.color);
+        });
+        socket.on('color', function(color) {
+            if (color === 'red') {
+                $('#color').text('red');
+                $('#color').css('color', 'red');
+                $('#color').css('opacity', '1');
+                $('#line').css('border-color', 'red');
+            } else if (color === 'blue') {
+                $('#color').text('blue');
+                $('#color').css('color', 'blue');
+                $('#color').css('opacity', '1');
+                $('#line').css('border-color', 'blue');
+            } else {
+                $('#color').text('spectator');
+                $('#color').css('color', '#dddddd');
+                $('#color').css('opacity', '1');
+                $('#line').css('border-color', '#dddddd');
+            }
+        });
+        socket.on('denied', function() {
+            window.location = '/';
+        });
+
+        function display(text, color) {
+            $('#message').text(text);
+            $('#message').css('color', color);
+        }
+
+        var game_id = getURLParameter('id');
+
+        function getURLParameter(parameter_name) {
+            var variables = window.location.search.substring(1);
+            var variable_array = variables.split('&');
+            for (var i in variable_array) {
+                var variable_name = variable_array[i].split('=')[0];
+                if (variable_name === parameter_name) {
+                    return variable_array[i].split('=')[1];
+                }
+            }
+        }
+
+        $(function() {
+            // set room
+            $('#room').text(game_id);
+            // request to join the game
+            socket.emit('join game', game_id);
+            // request board state
+            socket.emit('request board');
+        });
+
+        function placeBlock(position) {
+            socket.emit('place block', {
+                x: position.x / 10 + 1,
+                z: position.z / 10 + 1
+            });
+        }
+    </script>
+</head>
+
+<body>
+
+    <div id='content'>
+        <div id='render'>
+            <div id='canvas'></div>
+            <script type='text/javascript'>
+                var objects = [];
+                var canvas = $('#canvas');
+                var width = canvas.width();
+                var height = canvas.height();
+
+                var renderer = new THREE.WebGLRenderer({
+                    alpha: true
+                });
+                var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 300);
+                var scene = new THREE.Scene();
+
+                camera.position.y = 60;
+                camera.position.x = 40;
+                camera.position.z = 40;
+                
+                scene.add(camera);
+                
+
+                var controls = new THREE.OrbitControls(camera);
+
+                 // grid
+                var material = new THREE.LineBasicMaterial({
+                    color: 0xbbbbbb
+                });
+                var geometry = new THREE.Geometry();
+                geometry.vertices.push(new THREE.Vector3(-15, 0, -15));
+                geometry.vertices.push(new THREE.Vector3(15, 0, -15));
+                geometry.vertices.push(new THREE.Vector3(15, 0, 15));
+                geometry.vertices.push(new THREE.Vector3(-15, 0, 15));
+                geometry.vertices.push(new THREE.Vector3(-15, 0, -15));
+                geometry.vertices.push(new THREE.Vector3(-5, 0, -15));
+                geometry.vertices.push(new THREE.Vector3(-5, 0, 15));
+                geometry.vertices.push(new THREE.Vector3(5, 0, 15));
+                geometry.vertices.push(new THREE.Vector3(5, 0, -15));
+                geometry.vertices.push(new THREE.Vector3(15, 0, -15));
+                geometry.vertices.push(new THREE.Vector3(15, 0, -5));
+                geometry.vertices.push(new THREE.Vector3(-15, 0, -5));
+                geometry.vertices.push(new THREE.Vector3(-15, 0, 5));
+                geometry.vertices.push(new THREE.Vector3(15, 0, 5));
+                var line = new THREE.Line(geometry, material);
+                scene.add(line);
+
+                 // base cubes
+                var base_cubes = new THREE.Group();
+                scene.add(base_cubes);
+
+                function addBase(position) {
+                    var geometry = new THREE.BoxGeometry(10, 0, 10);
+                    var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+                        color: 0xeeeeee
+                    }));
+                    mesh.position.x = position.x;
+                    mesh.position.y = -0.05;
+                    mesh.position.z = position.z;
+                    base_cubes.add(mesh);
+                    objects.push(mesh);
+                }
+
+                addBase({
+                    x: 0,
+                    z: 0
+                });
+                addBase({
+                    x: 10,
+                    z: 0
+                });
+                addBase({
+                    x: -10,
+                    z: 0
+                });
+                addBase({
+                    x: 0,
+                    z: 10
+                });
+                addBase({
+                    x: 10,
+                    z: 10
+                });
+                addBase({
+                    x: -10,
+                    z: 10
+                });
+                addBase({
+                    x: 0,
+                    z: -10
+                });
+                addBase({
+                    x: 10,
+                    z: -10
+                });
+                addBase({
+                    x: -10,
+                    z: -10
+                });
+
+                 // click detection
+
+                var raycaster = new THREE.Raycaster();
+                var mouse = new THREE.Vector2();
+                document.getElementById('canvas').addEventListener('mousedown', function(event) {
+                    mouse.x = (event.clientX / renderer.domElement.width) * 2 - 1;
+                    mouse.y = -(event.clientY / renderer.domElement.height) * 2 + 1;
+
+                    raycaster.setFromCamera(mouse, camera);
+                    var intersects = raycaster.intersectObjects(objects);
+                    if (intersects.length > 0) {
+                        placeBlock(intersects[0].object.position);
+                    }
+                }, false);
+                document.getElementById('canvas').addEventListener('mousemove', function(event) {
+                    mouse.x = (event.clientX / renderer.domElement.width) * 2 - 1;
+                    mouse.y = -(event.clientY / renderer.domElement.height) * 2 + 1;
+
+                    raycaster.setFromCamera(mouse, camera);
+                    var intersects = raycaster.intersectObjects(objects);
+                    if (intersects.length > 0) {
+                        for (var i in objects) {
+                            objects[i].material.opacity = 1;
+                        }
+                        intersects[0].object.material.opacity = 0.5;
+                    } else {
+                        for (var i in objects) {
+                            objects[i].material.opacity = 1;
+                        }
+                    }
+                }, false);
+                document.getElementById('canvas').addEventListener('mouseout', function(event) {
+                    for (var i in objects) {
+                            objects[i].material.opacity = 1;
+                        }
+                }, false);
+
+                 // lighting
+                var lights = new THREE.Group();
+                scene.add(lights);
+
+                var light = new THREE.PointLight(0xffffff, 1.5, 200);
+                light.position.set(0, 50, 0);
+                lights.add(light);
+                light = new THREE.PointLight(0xffffff, 1.5, 200);
+                light.position.set(20, 15, 0);
+                lights.add(light);
+                light = new THREE.PointLight(0xffffff, 1.5, 200);
+                light.position.set(-20, 15, 0);
+                lights.add(light);
+                light = new THREE.PointLight(0xffffff, 1.5, 200);
+                light.position.set(0, 15, 20);
+                lights.add(light);
+                light = new THREE.PointLight(0xffffff, 1.5, 200);
+                light.position.set(0, 15, -20);
+                lights.add(light);
+
+
+                renderer.setSize(width, height);
+                canvas.append(renderer.domElement);
+
+                var render = function() {
+                    requestAnimationFrame(render);
+
+                    controls.update();
+
+                    renderer.render(scene, camera);
+                };
+
+                render();
+
+                function addCube(position, color) {
+                    var size = 10;
+                    var material = new THREE.MeshPhongMaterial({
+                        color: color
+                    });
+                    var geometry = new THREE.BoxGeometry(size, size, size);
+                    var mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.x = 10 * (position.x - 1);
+                    mesh.position.z = 10 * (position.z - 1);
+                    mesh.position.y = 10 * (position.y) + 5;
+
+                    scene.add(mesh);
+                    objects.push(mesh);
+                }
+            </script>
+        </div>
+        <div id='info'>
+            <span id='message'>Waiting for server...</span>
+            <br>
+            <span id='subtext'>You are playing as <span id='color'></span></span>
+            <br>
+            <hr id='line'>
+            <span id='subtext'>You are in room <span id='room'></span>
+            <br>
+            <a href='/'>Change room</a>
+            </span>
+            <br>
+        </div>
+    </div>
+</body>
+
+</html>

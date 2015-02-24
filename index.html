@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+    <head>
+        <title>3D Tic Tac Toe</title>
+        <link href='https://fonts.googleapis.com/css?family=Roboto:300,400' rel='stylesheet' type='text/css'>
+        <link rel='stylesheet' type='text/css' href='style.css'>
+        <script>
+            function checkTextField(event) {
+                if (event.keyCode == 13) {
+                    window.location = 'play?id=' + document.getElementById('room_field').value;
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div class='content'>
+            <div class='roomField'>
+                <h1>play 3D tic tac toe</h1>
+                Room ID: <input type='text' class='room_field' id='room_field' maxlength='16' onkeydown='checkTextField(event)' autofocus>
+            </div>
+        </div>
+    </body>
+</html>

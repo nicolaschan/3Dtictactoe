@@ -1,0 +1,86 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+#content {
+    width: 100%;
+    height: 96vh;
+    margin: 0;
+    padding: 0;
+}
+
+#render {
+    width: 60%;
+    height: 100%;
+    float: left;
+}
+#info {
+    width: 40%;
+    height: 100%;
+    float: left;
+}
+
+#canvas {
+    height: 100%;
+    width: 100%;
+}
+
+#message {
+    font-size: 56px;
+    font-weight: 600;
+}
+#subtext {
+    font-size: 32px;
+}
+#subtext a:link,
+#subtext a:visited {
+    font-weight: 200;
+    text-decoration: none;
+    color: #cccccc;
+}
+#subtext a:hover {
+    text-decoration: underline;
+}
+
+#color {
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+#room {
+    font-weight: 700;
+}
+hr {
+    border: 1px solid #dddddd;
+    transition: border 2s ease;
+}
+
+div.header {
+    margin: 0px auto;
+    display: table;
+}
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 24px;
+}
+div.roomField {
+    margin: 0px auto;
+    display: table;
+    position: relative;
+    top: 30%;
+}
+#room_field {
+    font-family: 'Roboto', sans-serif;
+    font-size: 24px;
+    outline: none;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    transition: border 0.2s ease;
+}
+#room_field:focus {
+    border-color: #00aaff;
+}
+div.content {
+    width: 100vw;
+    height: 97vh;
+}
