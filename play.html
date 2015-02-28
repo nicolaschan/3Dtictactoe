@@ -34,6 +34,11 @@
         });
         socket.on('display', function(colored_text) {
             display(colored_text.text, colored_text.color);
+            if (colored_text.text === 'Waiting for opponent to join...' || colored_text.text === 'Opponent disconnected') {
+                $('#roomstatus').css('visibility', 'visible');
+            } else {
+                $('#roomstatus').css('visibility', 'hidden');
+            }
         });
         socket.on('color', function(color) {
             if (color === 'red') {
@@ -41,11 +46,13 @@
                 $('#color').css('color', 'red');
                 $('#color').css('opacity', '1');
                 $('#line').css('border-color', 'red');
+                socket.emit('get status');
             } else if (color === 'blue') {
                 $('#color').text('blue');
                 $('#color').css('color', 'blue');
                 $('#color').css('opacity', '1');
                 $('#line').css('border-color', 'blue');
+                socket.emit('get status');
             } else {
                 $('#color').text('spectator');
                 $('#color').css('color', '#dddddd');
@@ -56,6 +63,19 @@
         socket.on('denied', function() {
             window.location = '/';
         });
+        socket.on('status', function(boolean) {
+            if (boolean) {
+                $('#statusmessage').text('This rooms is currently public and a player can be automatically assigned to join.');
+                $('#statuslink').text('Change room to private');
+            } else {
+                $('#statusmessage').text('This rooms is currently private and a player cannot be automatically assigned to join.');
+                $('#statuslink').text('Change room to public');
+            }
+        });
+
+        function toggleStatus() {
+            socket.emit('toggle status');
+        }
 
         function display(text, color) {
             $('#message').text(text);
@@ -290,6 +310,12 @@
             <span id='subtext'>You are in room <span id='room'></span>
             <br>
             <a href='/'>Change room</a>
+            </span>
+            <br>
+            <br>
+            <span id='roomstatus'>
+                <span id='statusmessage'></span><br>
+                <a href='#' onclick='toggleStatus()' id='statuslink'></a>
             </span>
             <br>
         </div>

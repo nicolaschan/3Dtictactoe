@@ -21,34 +21,66 @@ http.listen(9002, function() {
     console.log('http server started');
 });
 
-function getEmptyArray() {
-    var empty_3D = [
-        [
-            [null, null, null],
-            [null, null, null],
-            [null, null, null]
-        ],
-        [
-            [null, null, null],
-            [null, null, null],
-            [null, null, null]
-        ],
-        [
-            [null, null, null],
-            [null, null, null],
-            [null, null, null]
-        ],
-    ];
-    return empty_3D;
+function getArray(parameters) {
+    var output = [];
+
+    if (parameters.length === 1) {
+        for (var i = 0; i < parameters[0]; i++) {
+            output.push(null);
+        }
+    } else {
+        for (var i = 0; i < parameters[0]; i++) {
+            var new_parameters = parameters.slice(1);
+            output.push(getArray(new_parameters));
+        }
+    }
+
+    return output;
 }
 
+function getEmptyArray() {
+    return getArray([3, 3, 3]);
+}
 
+function isCurrentlyUsed(id) {
+    for (var i in current_rooms) {
+        if (current_rooms[i] === id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isCurrentlyOpen(id) {
+    for (var i in open_rooms) {
+        if (open_rooms[i] === id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+var open_rooms = [];
+var current_rooms = [];
 var rooms = {};
 
 var io = require('socket.io')(http);
 io.on('connection', function(socket) {
     var room_id;
     var color;
+
+    socket.on('autojoin', function() {
+        if (open_rooms.length > 0) {
+            socket.emit('assign', open_rooms[0]);
+            open_rooms.splice(0, 1);
+        } else {
+            var random = parseInt(Math.random() * 1000);
+            while (isCurrentlyUsed(random)) {
+                random = parseInt(Math.random() * 1000);
+            }
+            socket.emit('assign', random);
+        }
+    });
 
     socket.on('join game', function(id) {
         if (!rooms[id]) {
@@ -60,6 +92,8 @@ io.on('connection', function(socket) {
             rooms[id]['blue'] = {};
             rooms[id]['spectators'] = {};
             rooms[id]['spectators']['sockets'] = [];
+
+            current_rooms.push(id);
         }
         if (rooms[id]['running']) {
             if (!rooms[id]['red']['socket']) {
@@ -77,7 +111,9 @@ io.on('connection', function(socket) {
                         text: "Waiting for opponent to join...",
                         color: '#000000'
                     });
+                    open_rooms.push(room_id);
                 } else {
+                    open_rooms.splice(open_rooms.indexOf(room_id), 1);
                     if (rooms[id]['red']['current_turn']) {
                         rooms[id]['red']['socket'].emit('display', {
                             text: "Your move!",
@@ -98,6 +134,7 @@ io.on('connection', function(socket) {
                         });
                     }
                 }
+
             } else if (rooms[id]['red']['socket'] && !rooms[id]['blue']['socket']) {
                 // room has no blue player
                 rooms[id]['blue']['socket'] = socket;
@@ -113,7 +150,9 @@ io.on('connection', function(socket) {
                         text: "Waiting for opponent to join...",
                         color: '#000000'
                     });
+                    open_rooms.push(room_id);
                 } else {
+                    open_rooms.splice(open_rooms.indexOf(room_id), 1);
                     if (rooms[id]['red']['current_turn']) {
                         rooms[id]['red']['socket'].emit('display', {
                             text: "Your move!",
@@ -155,6 +194,21 @@ io.on('connection', function(socket) {
                 color: '#000000'
             });
         }
+    });
+
+    socket.on('toggle status', function() {
+        if (color === 'red' || color === 'blue') {
+            if (isCurrentlyOpen(room_id)) {
+                open_rooms.splice(open_rooms.indexOf(room_id), 1);
+                socket.emit('status', isCurrentlyOpen(room_id));
+            } else {
+                open_rooms.push(room_id);
+                socket.emit('status', isCurrentlyOpen(room_id));
+            }
+        }
+    });
+    socket.on('get status', function() {
+        socket.emit('status', isCurrentlyOpen(room_id));
     });
 
     socket.on('request board', function() {
@@ -339,6 +393,8 @@ io.on('connection', function(socket) {
                 }
                 if (!rooms[room_id]['red']['socket'] && !rooms[room_id]['blue']['socket']) {
                     rooms[room_id] = null;
+                    open_rooms.splice(open_rooms.indexOf(room_id), 1);
+                    current_rooms.splice(current_rooms.indexOf(room_id), 1);
                 }
             }
         }

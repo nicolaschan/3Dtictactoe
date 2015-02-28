@@ -84,3 +84,21 @@ div.content {
     width: 100vw;
     height: 97vh;
 }
+span.autoassign a:link,
+span.autoassign a:visited {
+    color: #00aaff;
+    text-decoration: none;
+}
+span.autoassign a:hover {
+    text-decoration: underline;
+}
+
+#roomstatus a:link,
+#roomstatus a:visited {
+    font-weight: 200;
+    text-decoration: none;
+    color: #cccccc;
+}
+#roomstatus a:hover {
+    text-decoration: underline;
+}

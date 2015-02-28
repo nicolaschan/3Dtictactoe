@@ -3,6 +3,7 @@
     <head>
         <title>3D Tic Tac Toe</title>
         <link href='https://fonts.googleapis.com/css?family=Roboto:300,400' rel='stylesheet' type='text/css'>
+        <script src='https://cdn.socket.io/socket.io-1.3.3.js'></script>
         <link rel='stylesheet' type='text/css' href='style.css'>
         <script>
             function checkTextField(event) {
@@ -10,13 +11,25 @@
                     window.location = 'play?id=' + document.getElementById('room_field').value;
                 }
             }
+            
+            var socket = io();
+            
+            function autoJoin() {
+                socket.emit('autojoin');
+            }
+            socket.on('assign', function(room_id) {
+                window.location = 'play?id=' + room_id;
+            });
         </script>
     </head>
     <body>
         <div class='content'>
             <div class='roomField'>
                 <h1>play 3D tic tac toe</h1>
-                Room ID: <input type='text' class='room_field' id='room_field' maxlength='16' onkeydown='checkTextField(event)' autofocus>
+                Room ID: <input type='text' class='room_field' id='room_field' maxlength='16' onkeydown='checkTextField(event)' autofocus><br><br>
+                <span class='autoassign'>
+                    or <a href='#' onclick='autoJoin()'>get automatically paired</a>
+                </span>
             </div>
         </div>
     </body>
