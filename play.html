@@ -35,8 +35,10 @@
         socket.on('display', function(colored_text) {
             display(colored_text.text, colored_text.color);
             if (colored_text.text === 'Waiting for opponent to join...' || colored_text.text === 'Opponent disconnected') {
+                socket.emit('get status');
                 $('#roomstatus').css('visibility', 'visible');
             } else {
+                socket.emit('get status');
                 $('#roomstatus').css('visibility', 'hidden');
             }
         });
@@ -46,13 +48,11 @@
                 $('#color').css('color', 'red');
                 $('#color').css('opacity', '1');
                 $('#line').css('border-color', 'red');
-                socket.emit('get status');
             } else if (color === 'blue') {
                 $('#color').text('blue');
                 $('#color').css('color', 'blue');
                 $('#color').css('opacity', '1');
                 $('#line').css('border-color', 'blue');
-                socket.emit('get status');
             } else {
                 $('#color').text('spectator');
                 $('#color').css('color', '#dddddd');
