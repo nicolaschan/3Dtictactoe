@@ -3,6 +3,9 @@ Play a game of three-dimensional Tic Tac Toe in your browser with your friends! 
 
 This game is hosted by the creator at [3d.nicolaschan.com](https://3d.nicolaschan.com), although this may not be online all of the time.
 
+# Installation
+If you want to host the game yourself, you can clone this repository. You will need to run `npm install` and add [OrbitControls.js](http://threejs.org/examples/js/controls/OrbitControls.js) to the folder.
+
 # Screenshots
 ![your move screenshot](https://i.imgur.com/Ym9dehz.png)
 ![you win screenshot](https://i.imgur.com/sizXfuK.png)
