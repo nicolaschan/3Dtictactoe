@@ -12,10 +12,10 @@ app.get('/style.css', function(req, res) {
     res.sendFile(path.join(__dirname, 'style.css'));
 });
 app.get('/three.min.js', function(req, res) {
-    res.sendFile(path.join(__dirname, 'three.js', 'build', 'three.min.js'));
+    res.sendFile(path.join(__dirname, 'three.min.js'));
 });
 app.get('/OrbitControls.js', function(req, res) {
-    res.sendFile(path.join(__dirname, 'three.js', 'examples', 'js', 'controls', 'OrbitControls.js'));
+    res.sendFile(path.join(__dirname, 'OrbitControls.js'));
 });
 
 http.listen(9002, function() {

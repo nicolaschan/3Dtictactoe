@@ -1,2 +1,4 @@
 node_modules/*
 three.js/*
+OrbitControls.js
+three.min.js

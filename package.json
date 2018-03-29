@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "online 3D tic tac toe",
   "scripts": {
-    "install": "git clone https://github.com/mrdoob/three.js.git && cd three.js && git reset --hard 3f56527040"
+    "install": "wget https://raw.githubusercontent.com/mrdoob/three.js/3f5652704070e8d6b7730dcf1978da0f84ff8593/build/three.min.js && wget https://raw.githubusercontent.com/mrdoob/three.js/3f5652704070e8d6b7730dcf1978da0f84ff8593/examples/js/controls/OrbitControls.js"
   },
   "dependencies": {
     "express": "^4.11.2",
