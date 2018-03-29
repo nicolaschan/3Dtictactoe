@@ -1,20 +1,21 @@
 var app = require('express')();
 var http = require('http').Server(app);
+const path = require('path');
 
 app.get('/', function(req, res) {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 app.get('/play', function(req, res) {
-    res.sendFile(__dirname + '/play.html');
+    res.sendFile(path.join(__dirname, 'play.html'));
 });
 app.get('/style.css', function(req, res) {
-    res.sendFile(__dirname + '/style.css');
+    res.sendFile(path.join(__dirname, 'style.css'));
 });
 app.get('/three.min.js', function(req, res) {
-    res.sendFile(__dirname + '/three.min.js');
+    res.sendFile(path.join(__dirname, 'three.js', 'build', 'three.min.js'));
 });
 app.get('/OrbitControls.js', function(req, res) {
-    res.sendFile(__dirname + '/OrbitControls.js');
+    res.sendFile(path.join(__dirname, 'three.js', 'examples', 'js', 'controls', 'OrbitControls.js'));
 });
 
 http.listen(9002, function() {
